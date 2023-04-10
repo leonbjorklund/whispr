@@ -1,12 +1,23 @@
 import { faPaperPlane } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { addDoc, collection } from "firebase/firestore";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { firestore } from "../firebase";
 
 const PostForm: React.FC = () => {
   const [inputText, setInputText] = useState("");
+
+  const postTextInputRef = useRef<HTMLTextAreaElement | null>(null); // Explicitly set the type of the ref
+
+
+  useEffect(() => {
+    // Adjust the height of the text area based on its content
+    if (postTextInputRef.current) {
+      postTextInputRef.current.style.height = "auto";
+      postTextInputRef.current.style.height = `${postTextInputRef.current.scrollHeight}px`;
+    }
+  }, [inputText]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -20,14 +31,30 @@ const PostForm: React.FC = () => {
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInputText(e.target.value);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      const submitButton = e.currentTarget.form?.querySelector(
+        'button[type="submit"]'
+      ) as HTMLButtonElement | null;
+      submitButton?.click();
+    }
+  };
+
   return (
     <StyledForm onSubmit={handleSubmit}>
       <StyledPostText
         rows={1}
         maxLength={280}
         value={inputText}
-        onChange={(e) => setInputText(e.target.value)}
-        placeholder="Write your post..."
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        ref={postTextInputRef} // Add a ref to the text area
+        placeholder="Whats on your mind?"
       />
       <StyledSubmit type="submit">
         <FontAwesomeIcon icon={faPaperPlane} />
@@ -39,9 +66,12 @@ const PostForm: React.FC = () => {
 const StyledForm = styled.form`
   cursor: pointer;
   height: 100%;
+  width: 80%;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  margin-left:auto;
+  margin-right:auto;
   background-color: rgb(22, 22, 23);
   border: 1px solid #ffffff2e;
   border-radius: 10px;

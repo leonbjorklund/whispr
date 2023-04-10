@@ -45,9 +45,12 @@ export default Post;
 export const StyledPostCard = styled.div`
   height: 100%;
   padding: 10px;
+  display: flex;
+  justify-content: space-between;
   background-color: #161617;
   border: 1px solid #ffffff2e;
   border-radius: 10px;
   color: white;
   margin: 10px;
 `;
+
