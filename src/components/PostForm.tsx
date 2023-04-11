@@ -70,9 +70,6 @@ const PostForm: React.FC = () => {
         }
       } else {
         setTimeRemaining(remainingTime);
-        console.error(
-          "Error: User cannot post more than once every 30 minutes."
-        );
       }
     }
   };

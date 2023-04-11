@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css';
 import Logo from './components/Logo';
 import PostFeed from './components/PostFeed';
 import PostForm from './components/PostForm';
