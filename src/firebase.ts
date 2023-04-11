@@ -1,6 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { getAnalytics } from "firebase/analytics";
 import { initializeApp } from "firebase/app";
+import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
+
 
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
@@ -26,3 +28,17 @@ const analytics = getAnalytics(app);
 
 export const auth = getAuth(app);
 export const firestore = getFirestore(app);
+
+// Sign in the user anonymously
+signInAnonymously(auth).catch((error) => {
+  console.error('Error during anonymous sign-in:', error);
+});
+
+// Check for auth state changes and log the current user
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    console.log('User is signed in:', user);
+  } else {
+    console.log('No user is signed in.');
+  }
+});

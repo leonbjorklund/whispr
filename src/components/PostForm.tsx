@@ -1,13 +1,20 @@
 import { faPaperPlane } from "@fortawesome/free-regular-svg-icons";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import styled from "styled-components";
-import { firestore } from "../firebase";
+import { auth, firestore } from "../firebase";
 
 const PostForm: React.FC = () => {
   const [inputText, setInputText] = useState("");
   const postTextInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+
+  const handleClose = () => {
+    setTimeRemaining(null);
+  };
 
   useEffect(() => {
     if (postTextInputRef.current) {
@@ -16,15 +23,57 @@ const PostForm: React.FC = () => {
     }
   }, [inputText]);
 
+  const [user] = useAuthState(auth);
+
+  const canPost = async (uid: string) => {
+    const currentTime = new Date();
+    const thirtyMinutesAgo = new Date(currentTime.getTime() - 30 * 60 * 1000);
+
+    const userPosts = query(
+      collection(firestore, "posts"),
+      where("uid", "==", uid),
+      where("createdAt", ">=", thirtyMinutesAgo)
+    );
+
+    const querySnapshot = await getDocs(userPosts);
+
+    // return querySnapshot.empty;
+
+    if (querySnapshot.empty) {
+      return null;
+    } else {
+      const latestPostTime = querySnapshot.docs[0].data().createdAt.toDate();
+      const timeElapsed = currentTime.getTime() - latestPostTime.getTime();
+      const timeRemaining = 30 * 60 * 1000 - timeElapsed;
+
+      return timeRemaining;
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (inputText.trim() !== "") {
-      await addDoc(collection(firestore, "posts"), {
-        text: inputText,
-        createdAt: new Date(),
-        likes: 0,
-      });
-      setInputText("");
+
+    if (user) {
+      const remainingTime = await canPost(user.uid);
+
+      if (remainingTime === null) {
+        // Your existing code
+        if (inputText.trim() !== "") {
+          await addDoc(collection(firestore, "posts"), {
+            uid: user.uid,
+            text: inputText,
+            createdAt: new Date(),
+            likes: 0,
+          });
+          setInputText("");
+          setTimeRemaining(null);
+        }
+      } else {
+        setTimeRemaining(remainingTime);
+        console.error(
+          "Error: User cannot post more than once every 30 minutes."
+        );
+      }
     }
   };
 
@@ -56,11 +105,21 @@ const PostForm: React.FC = () => {
       <StyledSubmit type="submit">
         <FontAwesomeIcon icon={faPaperPlane} />
       </StyledSubmit>
+      {timeRemaining !== null && (
+        <PostLimitPopUp>
+          <StyledCloseButton onClick={handleClose}>
+            <FontAwesomeIcon icon={faXmark} />
+          </StyledCloseButton>
+          Only one post per 30 min! <br />
+          {Math.ceil(timeRemaining / (1000 * 60))} minutes left
+        </PostLimitPopUp>
+      )}
     </StyledForm>
   );
 };
 
 const StyledForm = styled.form`
+  position: relative;
   cursor: pointer;
   height: 100%;
   width: 80%;
@@ -118,6 +177,40 @@ const StyledSubmit = styled.button`
   &:active {
     transform: scale(0.9);
     box-shadow: 0 0 5px black;
+  }
+`;
+
+const PostLimitPopUp = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 90%;
+  text-align: left;
+  width: 13rem;
+  padding: 5px;
+  font-size: .9rem;
+  z-index: 1;
+  transform: translateX(-50%); // to adjust horizontal centering
+  background-color: black;
+  border: 1px solid white;
+  border-radius: 5px; // Add border-radius for a rounded popup
+  margin-top: 5px; // Add some margin to create a gap between the form and popup
+  color: white; // Set text color to white
+  cursor: auto;
+`;
+
+const StyledCloseButton = styled.button`
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 10px;
+
+  &:hover {
+    background-color: rgb(63 63 73);
   }
 `;
 

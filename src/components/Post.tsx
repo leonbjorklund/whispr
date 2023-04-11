@@ -39,8 +39,8 @@ const Post: React.FC<PostProps> = ({
     }
   };
 
-  const date = createdAt.toDate();
-  const formattedDate = date.toLocaleString("en-US", {
+  const postDate = createdAt.toDate();
+  const formattedDate = postDate.toLocaleString("en-US", {
     weekday: "short",
     month: "short",
     day: "numeric",
