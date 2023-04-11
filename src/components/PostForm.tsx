@@ -7,12 +7,9 @@ import { firestore } from "../firebase";
 
 const PostForm: React.FC = () => {
   const [inputText, setInputText] = useState("");
-
-  const postTextInputRef = useRef<HTMLTextAreaElement | null>(null); // Explicitly set the type of the ref
-
+  const postTextInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
-    // Adjust the height of the text area based on its content
     if (postTextInputRef.current) {
       postTextInputRef.current.style.height = "auto";
       postTextInputRef.current.style.height = `${postTextInputRef.current.scrollHeight}px`;
@@ -70,12 +67,11 @@ const StyledForm = styled.form`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-left:auto;
-  margin-right:auto;
+  margin-left: auto;
+  margin-right: auto;
   background-color: rgb(22, 22, 23);
   border: 1px solid #ffffff2e;
   border-radius: 10px;
-  padding: 5px;
 `;
 
 const StyledPostText = styled.textarea`
@@ -89,6 +85,7 @@ const StyledPostText = styled.textarea`
   font-size: 1.2rem;
   resize: none;
   padding: 10px;
+  margin-left: 5px;
   &:focus {
     outline: none;
   }
@@ -112,6 +109,7 @@ const StyledSubmit = styled.button`
   width: 50px;
   border: none;
   cursor: pointer;
+  padding: 10px;
 
   &:hover {
     background-color: rgb(63 63 73);

@@ -1,13 +1,16 @@
+import firebase from "firebase/compat";
 import { FirestoreDataConverter, collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import React from 'react';
 import styled from 'styled-components';
 import { firestore } from '../firebase';
+
 import Post from './Post';
 
 interface PostData {
   id: string;
   text: string;
   likes: number;
+  createdAt: firebase.firestore.Timestamp;
 }
 
 const postDataConverter: FirestoreDataConverter<PostData> = {
@@ -16,6 +19,7 @@ const postDataConverter: FirestoreDataConverter<PostData> = {
       id: data.id,
       text: data.text,
       likes: data.likes,
+      createdAt: data.createdAt,
     };
   },
   fromFirestore: (snapshot, options) => {
@@ -24,9 +28,11 @@ const postDataConverter: FirestoreDataConverter<PostData> = {
       id: data.id,
       text: data.text,
       likes: data.likes,
+      createdAt: data.createdAt,
     } as PostData;
   },
 };
+
 
 const PostFeed: React.FC = () => {
   const postsQuery = query(
@@ -51,10 +57,10 @@ const PostFeed: React.FC = () => {
 
   return (
     <StyledFeed>
-      {posts &&
-        posts.map((post) => (
-          <Post key={post.id} postId={post.id} text={post.text} likes={post.likes} />
-        ))}
+    {posts &&
+        posts.map((post, index) => (
+        <Post key={post.id} postId={post.id} postNumber={index + 1} text={post.text} likes={post.likes} createdAt={post.createdAt} />
+      ))}
     </StyledFeed>
   );
 };
