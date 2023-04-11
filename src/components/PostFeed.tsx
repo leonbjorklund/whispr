@@ -71,4 +71,6 @@ const StyledFeed = styled.div`
 width: 80%;
 margin-left: auto;
 margin-right: auto;
+display: flex;
+flex-direction: column-reverse;
 `
