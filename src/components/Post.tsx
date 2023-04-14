@@ -64,7 +64,7 @@ const Post: React.FC<PostProps> = ({
             <LikesAmount>{likes}</LikesAmount>
           </LikeButton>
         </div>
-        <button
+        {/* <button
           onClick={handleRemove}
           style={{
             backgroundColor: "transparent",
@@ -72,7 +72,7 @@ const Post: React.FC<PostProps> = ({
           }}
         >
           Remove
-        </button>
+        </button> */}
       </PostFooter>
     </StyledPostCard>
   );

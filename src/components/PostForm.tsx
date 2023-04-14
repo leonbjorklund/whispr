@@ -193,7 +193,12 @@ const PostLimitPopUp = styled.div`
   margin-top: 5px; // Add some margin to create a gap between the form and popup
   color: white; // Set text color to white
   cursor: auto;
+
+  @media (max-width: 600px) {
+    left: 66%;
+  }
 `;
+
 
 const StyledCloseButton = styled.button`
   position: absolute;
